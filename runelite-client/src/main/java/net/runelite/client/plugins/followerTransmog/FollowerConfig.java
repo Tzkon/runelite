@@ -165,11 +165,22 @@ public interface FollowerConfig extends Config {
     }
 
     @ConfigItem(
+            keyName = "standingAnimationSpeed",
+            name = "Idle Animation Speed",
+            description = "30 = one tick animation, 60 = two tick animation",
+            position = 14
+    )
+    default int standingAnimationSpeed() {return -1; // Default walking animation ID
+    }
+
+    @ConfigItem(
             keyName = "modelSize",
             name = "Model Size",
             description = "Enter the size you want the NPC",
-            position = 14
+            position = 15
     )
     default int modelSize() {return -1; // Default walking animation ID
     }
+
+
 }

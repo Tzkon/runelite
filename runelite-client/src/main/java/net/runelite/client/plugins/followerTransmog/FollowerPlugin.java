@@ -32,12 +32,14 @@ public class FollowerPlugin extends Plugin {
     private boolean hasFollower = false;
     private boolean transmogInitialized = false;
     private LocalPoint lastFollowerLocation;
-    private int tickCounter = 0;
+    private int walkingTickCounter = 0;
+    private int standingTickCounter = 0;
     private final Hooks.RenderableDrawListener drawListener = this::shouldDraw;
     private boolean hidePets = true;
     private Model model;
     private List<RuneLiteObject> transmogObjects;
     private List<Integer> modelIds;
+    private int lastAnimationFrame = -1;
     //private int standingAnim;
     //private int walkAnim;
     //private int speed;
@@ -102,6 +104,23 @@ public class FollowerPlugin extends Plugin {
             // Update the position and state of the transmog object here if necessary
             updateTransmogObject(follower);
             updateFollowerMovement(follower);
+
+   //         System.out.println("Animation ID: " + follower.getAnimation());
+//            System.out.println("Pose ID: " + follower.getPoseAnimation());
+//            System.out.println("Walking ID: " + follower.getWalkAnimation());
+//            System.out.println("Frame ID: " + follower.getAnimationFrame());
+//            System.out.println("Pose Frame ID: " + follower.getPoseAnimationFrame());
+//            System.out.println("Current Orientation: " + follower.getCurrentOrientation());
+
+            int poseFrame = follower.getPoseAnimationFrame();
+       //     System.out.println("Pose Frame ID: " + poseFrame);
+
+            // Check if the pose animation frame has reset to zero
+            if (poseFrame == 0) {
+        //        System.out.println("Pose animation has looped.");
+                // Perform any actions needed when the animation loops
+            }
+
         } else {
             // Handle the case where the follower is no longer present
             transmogInitialized = false;
@@ -150,6 +169,7 @@ public class FollowerPlugin extends Plugin {
         }
     }
 
+
     private RuneLiteObject initializeTransmogObject(NPC follower) {
         RuneLiteObject transmogObject = client.createRuneLiteObject();
         if (transmogObject != null) {
@@ -168,12 +188,14 @@ public class FollowerPlugin extends Plugin {
     private void updateFollowerMovement(NPC follower) {
         LocalPoint currentLocation = follower.getLocalLocation();
         boolean isFollowerMoving = lastFollowerLocation != null && !currentLocation.equals(lastFollowerLocation);
+
         lastFollowerLocation = currentLocation;
         if (isFollowerMoving) {
+            standingTickCounter = 0;
             handleWalkingAnimation(follower);
             //           System.out.println("Walking!");
         } else {
-            tickCounter = 0;
+            walkingTickCounter = 0;
             handleStandingAnimation(follower);
             //          System.out.println("Standing!");
         }
@@ -182,6 +204,7 @@ public class FollowerPlugin extends Plugin {
     // The number of frames in the walking animation
 
     private void handleWalkingAnimation(NPC follower) {
+
         TransmogData selectedNpc = config.selectedNpc();
         if (selectedNpc == null) {
             // Handle the case where selectedNpc is null
@@ -189,19 +212,20 @@ public class FollowerPlugin extends Plugin {
         }
 
         int walkingAnimationId;
-        int animationFrameCount;
+        int walkingFrameCount;
 
         if (selectedNpc == TransmogData.CUSTOM) {
             walkingAnimationId = config.walkingAnimationId();
-            animationFrameCount = config.walkingAnimationSpeed();
+            walkingFrameCount = config.walkingAnimationSpeed();
         } else {
             walkingAnimationId = selectedNpc.getWalkAnim();
-            animationFrameCount = selectedNpc.getSpeed();
+            walkingFrameCount = selectedNpc.getWalkingSpeed();
+
         }
 
         Animation walkingAnimation = client.loadAnimation(walkingAnimationId);
 
-        if (tickCounter == 0) {
+        if (walkingTickCounter == 0) {
             for (RuneLiteObject transmogObject : transmogObjects) {
                 if (transmogObject != null) {
                     transmogObject.setActive(true);
@@ -209,8 +233,7 @@ public class FollowerPlugin extends Plugin {
                 }
             }
         }
-        // Increment the tick counter and reset it after the animation duration
-        tickCounter = (tickCounter + 1) % animationFrameCount;
+        walkingTickCounter = (walkingTickCounter + 1) % walkingFrameCount; // Do not reset tickCounter here if it's managed by the walking animation logic
     }
 
 
@@ -222,22 +245,27 @@ public class FollowerPlugin extends Plugin {
         }
 
         int standingAnimationId;
+        int standingFrameCount;
 
         if (selectedNpc == TransmogData.CUSTOM) {
             standingAnimationId = config.standingAnimationId();
+            standingFrameCount = config.walkingAnimationSpeed();
         } else {
-            standingAnimationId = selectedNpc.getWalkAnim();
+            standingAnimationId = selectedNpc.getStandingAnim();
+            standingFrameCount = selectedNpc.getPoseSpeed();
         }
 
         Animation standingAnimation = client.loadAnimation(standingAnimationId);
 
-        for (RuneLiteObject transmogObject : transmogObjects) {
-            if (transmogObject != null) {
-                    //    System.out.println("selected stand");
+        if (standingTickCounter == 0) {
+            for (RuneLiteObject transmogObject : transmogObjects) {
+                if (transmogObject != null) {
+                    transmogObject.setActive(true);
                     transmogObject.setAnimation(standingAnimation);
+                }
             }
         }
-        // Do not reset tickCounter here if it's managed by the walking animation logic
+        standingTickCounter = (standingTickCounter + 1) % standingFrameCount; // Do not reset tickCounter here if it's managed by the walking animation logic
     }
 
     private void updateTransmogObject(NPC follower) {
@@ -248,6 +276,8 @@ public class FollowerPlugin extends Plugin {
                 if (transmogObject != null) {
                     transmogObject.setLocation(followerLocation, worldView.getPlane());
                     transmogObject.setOrientation(follower.getCurrentOrientation());// Set other properties as needed
+                   // System.out.println("Animation ID: " + transmogObject.getAnimation());
+                    //System.out.println("Animation Frame: " + transmogObject.getAnimationFrame());
                 }
             }
         }
@@ -267,16 +297,16 @@ public class FollowerPlugin extends Plugin {
             modelIds.clear();
             //System.out.println("CUSTOM model ID's added: " + modelIds);
             // Custom NPC data is entered
-            if (config.npcModelID1() != -1) modelIds.add(config.npcModelID1());
-            if (config.npcModelID2() != -1) modelIds.add(config.npcModelID2());
-            if (config.npcModelID3() != -1) modelIds.add(config.npcModelID3());
-            if (config.npcModelID4() != -1) modelIds.add(config.npcModelID4());
-            if (config.npcModelID5() != -1) modelIds.add(config.npcModelID5());
-            if (config.npcModelID6() != -1) modelIds.add(config.npcModelID6());
-            if (config.npcModelID7() != -1) modelIds.add(config.npcModelID7());
-            if (config.npcModelID8() != -1) modelIds.add(config.npcModelID8());
-            if (config.npcModelID9() != -1) modelIds.add(config.npcModelID9());
-            if (config.npcModelID10() != -1) modelIds.add(config.npcModelID10());
+            if (config.npcModelID1() != -1 && config.npcModelID1() != 0) modelIds.add(config.npcModelID1());
+            if (config.npcModelID2() != -1 && config.npcModelID2() != 0) modelIds.add(config.npcModelID2());
+            if (config.npcModelID3() != -1 && config.npcModelID3() != 0) modelIds.add(config.npcModelID3());
+            if (config.npcModelID4() != -1 && config.npcModelID4() != 0) modelIds.add(config.npcModelID4());
+            if (config.npcModelID5() != -1 && config.npcModelID5() != 0) modelIds.add(config.npcModelID5());
+            if (config.npcModelID6() != -1 && config.npcModelID6() != 0) modelIds.add(config.npcModelID6());
+            if (config.npcModelID7() != -1 && config.npcModelID7() != 0) modelIds.add(config.npcModelID7());
+            if (config.npcModelID8() != -1 && config.npcModelID8() != 0) modelIds.add(config.npcModelID8());
+            if (config.npcModelID9() != -1 && config.npcModelID9() != 0) modelIds.add(config.npcModelID9());
+            if (config.npcModelID10() != -1 && config.npcModelID10() != 0) modelIds.add(config.npcModelID10());
         }
 
         if (modelIds.isEmpty()) {
