@@ -11,7 +11,7 @@ public enum TransmogData {
 //    NIEVE("Nieve", Lists.newArrayList(392, 27644, 27640, 19951, 3661, 28827, 9644, 27654, 9640, 11048), 813, 1205, 30,1,1205, 64, -1, -1,null),
 //    KONAR("Konar", Lists.newArrayList(36162), 8219, 8218, 60, 1, -1, 108, -1, -1, null);
     CUSTOM("Custom Model", Lists.newArrayList(-1), -1, -1, -1, -1,-1),
-    NIEVE("Nieve", Lists.newArrayList(392, 27644, 27640, 19951, 3661, 28827, 9644, 27654, 9640, 11048), 813, 8218, 60, 120,  1),
+    NIEVE("Nieve", Lists.newArrayList(392, 27644, 27640, 19951, 3661, 28827, 9644, 27654, 9640, 11048), 813, 1205, 60, 120,  1),
     KONAR("Konar", Lists.newArrayList(36162), 8219, 8218, 60, 60,1),
     Whisperer("Whisperer", Lists.newArrayList(49222,49218,49221,49224,49219), 10230,10232, 60, 120, 1),
     WiseOldMan("Wise Old Man", Lists.newArrayList(187,9103,4925,315,173,10218,3711,279,8919), 813,1146, 60, 120, 1),

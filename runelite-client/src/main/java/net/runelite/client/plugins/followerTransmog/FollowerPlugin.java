@@ -40,6 +40,12 @@ public class FollowerPlugin extends Plugin {
     private List<RuneLiteObject> transmogObjects;
     private List<Integer> modelIds;
     private int lastAnimationFrame = -1;
+    int standingPreviousFrame = -1;
+    int previousWalkingFrame = -1;
+    int previousStandingFrame = -1;
+    private boolean isMoving = false;
+    private boolean previouslyMoved = false;
+    int currentFrame;
     //private int standingAnim;
     //private int walkAnim;
     //private int speed;
@@ -105,26 +111,14 @@ public class FollowerPlugin extends Plugin {
             updateTransmogObject(follower);
             updateFollowerMovement(follower);
 
-   //         System.out.println("Animation ID: " + follower.getAnimation());
+//            System.out.println("Animation ID: " + follower.getAnimation());
 //            System.out.println("Pose ID: " + follower.getPoseAnimation());
 //            System.out.println("Walking ID: " + follower.getWalkAnimation());
 //            System.out.println("Frame ID: " + follower.getAnimationFrame());
 //            System.out.println("Pose Frame ID: " + follower.getPoseAnimationFrame());
 //            System.out.println("Current Orientation: " + follower.getCurrentOrientation());
 
-            int poseFrame = follower.getPoseAnimationFrame();
-       //     System.out.println("Pose Frame ID: " + poseFrame);
 
-            // Check if the pose animation frame has reset to zero
-            if (poseFrame == 0) {
-        //        System.out.println("Pose animation has looped.");
-                // Perform any actions needed when the animation loops
-            }
-
-        } else {
-            // Handle the case where the follower is no longer present
-            transmogInitialized = false;
-            hasFollower = false;
         }
     }
 
@@ -191,12 +185,16 @@ public class FollowerPlugin extends Plugin {
 
         lastFollowerLocation = currentLocation;
         if (isFollowerMoving) {
-            standingTickCounter = 0;
+
+            isMoving = true;
+            System.out.println("follower is moving: isMoving set to " + isMoving);
             handleWalkingAnimation(follower);
             //           System.out.println("Walking!");
         } else {
-            walkingTickCounter = 0;
+            isMoving = false;
+            System.out.println("follower is standing: isMoving set to " + isMoving);
             handleStandingAnimation(follower);
+            //handleStandingAnimation(follower);
             //          System.out.println("Standing!");
         }
     }
@@ -204,7 +202,6 @@ public class FollowerPlugin extends Plugin {
     // The number of frames in the walking animation
 
     private void handleWalkingAnimation(NPC follower) {
-
         TransmogData selectedNpc = config.selectedNpc();
         if (selectedNpc == null) {
             // Handle the case where selectedNpc is null
@@ -212,28 +209,38 @@ public class FollowerPlugin extends Plugin {
         }
 
         int walkingAnimationId;
-        int walkingFrameCount;
 
         if (selectedNpc == TransmogData.CUSTOM) {
             walkingAnimationId = config.walkingAnimationId();
-            walkingFrameCount = config.walkingAnimationSpeed();
         } else {
             walkingAnimationId = selectedNpc.getWalkAnim();
-            walkingFrameCount = selectedNpc.getWalkingSpeed();
-
         }
 
         Animation walkingAnimation = client.loadAnimation(walkingAnimationId);
+        NPC followerLoop = client.getFollower();
 
-        if (walkingTickCounter == 0) {
-            for (RuneLiteObject transmogObject : transmogObjects) {
-                if (transmogObject != null) {
-                    transmogObject.setActive(true);
+
+        for (RuneLiteObject transmogObject : transmogObjects) {
+            if (transmogObject != null  && followerLoop != null) {
+                currentFrame = transmogObject.getAnimationFrame();
+                transmogObject.setActive(true);
+                transmogObject.setShouldLoop(true);
+
+                System.out.println("Animation Frame count: " + currentFrame);
+                if(previousWalkingFrame == -1) {
+                    System.out.println("Initialize walking - currentFrame: " + currentFrame + " previous frame " + previousWalkingFrame);
                     transmogObject.setAnimation(walkingAnimation);
+                }
+                {
+                    System.out.println("Resetting Walking Animation - currentFrame: " + currentFrame + " previous frame " + previousWalkingFrame);
+                    if (previousWalkingFrame > currentFrame) {
+                        transmogObject.setAnimation(walkingAnimation);
+                    }
+                    previousWalkingFrame = currentFrame;
+                    previouslyMoved = true;
                 }
             }
         }
-        walkingTickCounter = (walkingTickCounter + 1) % walkingFrameCount; // Do not reset tickCounter here if it's managed by the walking animation logic
     }
 
 
@@ -245,39 +252,48 @@ public class FollowerPlugin extends Plugin {
         }
 
         int standingAnimationId;
-        int standingFrameCount;
 
         if (selectedNpc == TransmogData.CUSTOM) {
             standingAnimationId = config.standingAnimationId();
-            standingFrameCount = config.walkingAnimationSpeed();
         } else {
             standingAnimationId = selectedNpc.getStandingAnim();
-            standingFrameCount = selectedNpc.getPoseSpeed();
         }
+
 
         Animation standingAnimation = client.loadAnimation(standingAnimationId);
-
-        if (standingTickCounter == 0) {
-            for (RuneLiteObject transmogObject : transmogObjects) {
-                if (transmogObject != null) {
-                    transmogObject.setActive(true);
+        NPC followerLoop = client.getFollower();
+        for (RuneLiteObject transmogObject : transmogObjects) {
+            if (transmogObject != null && followerLoop != null) {
+                currentFrame = transmogObject.getAnimationFrame();
+                transmogObject.setActive(true);
+                transmogObject.setShouldLoop(true);
+                System.out.println("Animation Frame count: " + currentFrame);
+                System.out.println("Resetting Standing Animation - currentFrame: " + currentFrame + " previous frame " + previousStandingFrame);
+                if(previousStandingFrame == -1) {
+                    System.out.println("Initialize standing - currentFrame: " + currentFrame + " previous frame " + previousStandingFrame);
                     transmogObject.setAnimation(standingAnimation);
                 }
+
+                if (previousStandingFrame > currentFrame) {
+                    transmogObject.setAnimation(standingAnimation);
+                }
+                previousStandingFrame = currentFrame;
+                previouslyMoved = false;
             }
         }
-        standingTickCounter = (standingTickCounter + 1) % standingFrameCount; // Do not reset tickCounter here if it's managed by the walking animation logic
     }
+
+
 
     private void updateTransmogObject(NPC follower) {
         WorldView worldView = client.getTopLevelWorldView();
         LocalPoint followerLocation = follower.getLocalLocation();
+        TransmogData selectedNpc = config.selectedNpc();
         if (transmogObjects != null) {
             for (RuneLiteObject transmogObject : transmogObjects) {
                 if (transmogObject != null) {
                     transmogObject.setLocation(followerLocation, worldView.getPlane());
                     transmogObject.setOrientation(follower.getCurrentOrientation());// Set other properties as needed
-                   // System.out.println("Animation ID: " + transmogObject.getAnimation());
-                    //System.out.println("Animation Frame: " + transmogObject.getAnimationFrame());
                 }
             }
         }
