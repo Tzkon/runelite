@@ -182,6 +182,26 @@ public interface FollowerConfig extends Config {
     default int modelSize() {return -1; // Default walking animation ID
     }
 
+    @ConfigItem(
+            keyName = "transmogRadius",
+            name = "Transmog Radius",
+            description = "Set the radius for the transmog object",
+            position = 16
+    )
+    default int transmogRadius() {
+        return 320; // Default radius
+    }
+
+    @ConfigItem(
+            keyName = "drawFrontTilesFirst",
+            name = "Draw Front Tiles First",
+            description = "Set whether to draw front tiles first for the transmog object",
+            position = 17
+    )
+    default boolean drawFrontTilesFirst() {
+        return true; // Default value
+    }
+
 
 
 }

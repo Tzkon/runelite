@@ -59,6 +59,9 @@ public class FollowerPlugin extends Plugin {
         transmogInitialized = false;
         isMoving = false;
         previouslyMoved = false;
+        transmogObjects = null;
+        previousWalkingFrame = -1;
+        previousStandingFrame = -1;
         System.out.println("Logged off Runelite");
     }
 
@@ -123,16 +126,12 @@ public class FollowerPlugin extends Plugin {
             if (mergedModel != null) {
                 transmogObject.setModel(mergedModel);
                 transmogObjects.add(transmogObject);
-                transmogObject.setDrawFrontTilesFirst(true);
-                System.out.println("original radius: " + transmogObject.getRadius());
-                transmogObject.setRadius(320);
-                transmogObject.setModelHeight(500);
                 transmogObject.setActive(true);
-                System.out.println("altered radius: " + transmogObject.getRadius());
-                System.out.println("Transmog object height. " + transmogObject.getModelHeight());
-                System.out.println("Transmog object initialized with merged model.");
 
-
+                if (config.selectedNpc() == TransmogData.CUSTOM) {
+                    transmogObject.setDrawFrontTilesFirst(config.drawFrontTilesFirst());
+                    transmogObject.setRadius(config.transmogRadius());
+                }
             }
         }
         return transmogObject;
@@ -240,6 +239,19 @@ public class FollowerPlugin extends Plugin {
         WorldView worldView = client.getTopLevelWorldView();
         LocalPoint followerLocation = follower.getLocalLocation();
         TransmogData selectedNpc = config.selectedNpc();
+// Offset in terms of tiles
+        int tileOffsetX = 2; // Move the transmog 2 tiles to the right
+        int tileOffsetY = 2; // Move the transmog 2 tiles upwards
+
+// Convert tile offset to local units
+        int localOffsetX = tileOffsetX * 128;
+        int localOffsetY = tileOffsetY * 128;
+
+// Calculate the new position
+        int newX = followerLocation.getX() + localOffsetX;
+        int newY = followerLocation.getY() + localOffsetY;
+        LocalPoint newLocation = new LocalPoint(newX, newY);
+
         if (transmogObjects != null) {
             for (RuneLiteObject transmogObject : transmogObjects) {
                 if (transmogObject != null) {
