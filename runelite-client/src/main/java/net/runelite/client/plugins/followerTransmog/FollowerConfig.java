@@ -201,7 +201,43 @@ public interface FollowerConfig extends Config {
     default boolean drawFrontTilesFirst() {
         return true; // Default value
     }
+    @ConfigItem(
+            keyName = "offsetX",
+            name = "Offset X",
+            description = "Horizontal offset for the transmog object",
+            position = 18
+    )
+    default int offsetX() {
+        return 0; // Default horizontal offset
+    }
 
+    @ConfigItem(
+            keyName = "offsetY",
+            name = "Offset Y",
+            description = "Vertical offset for the transmog object",
+            position = 19
+    )
+    default int offsetY() {
+        return 0; // Default vertical offset
+    }
+    @ConfigItem(
+            keyName = "angleMultiplier",
+            name = "Angle Multiplier",
+            description = "Multiplier for the angle calculation",
+            position = 20
+    )
+    default int angleMultiplier() {
+        return 2047; // Default multiplier
+    }
 
+    @ConfigItem(
+            keyName = "angleShift",
+            name = "Angle Shift",
+            description = "Value to shift the angle range",
+            position = 21
+    )
+    default int angleShift() {
+        return 1024; // Default shift
+    }
 
 }

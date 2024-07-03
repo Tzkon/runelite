@@ -2,7 +2,10 @@ package net.runelite.client.plugins.followerTransmog;
 
 import com.google.inject.Provides;
 import net.runelite.api.*;
+import net.runelite.api.coords.Angle;
 import net.runelite.api.coords.LocalPoint;
+import net.runelite.api.coords.WorldPoint;
+import net.runelite.api.coords.WorldArea;
 import net.runelite.api.events.ClientTick;
 import net.runelite.api.events.GameTick;
 import net.runelite.client.callback.Hooks;
@@ -13,10 +16,7 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.callback.ClientThread;
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @PluginDescriptor(
         name = "FollowerTransmog",
@@ -233,35 +233,39 @@ public class FollowerPlugin extends Plugin {
         }
     }
 
-
-
     private void updateTransmogObject(NPC follower) {
         WorldView worldView = client.getTopLevelWorldView();
         LocalPoint followerLocation = follower.getLocalLocation();
-        TransmogData selectedNpc = config.selectedNpc();
-// Offset in terms of tiles
-        int tileOffsetX = 2; // Move the transmog 2 tiles to the right
-        int tileOffsetY = 2; // Move the transmog 2 tiles upwards
 
-// Convert tile offset to local units
-        int localOffsetX = tileOffsetX * 128;
-        int localOffsetY = tileOffsetY * 128;
+        // Get the configured offsets
+        int offsetX = config.offsetX() * 128; // Convert tiles to local units
+        int offsetY = config.offsetY() * 128; // Convert tiles to local units
 
-// Calculate the new position
-        int newX = followerLocation.getX() + localOffsetX;
-        int newY = followerLocation.getY() + localOffsetY;
+        // Calculate the new position with the offsets
+        int newX = followerLocation.getX() + offsetX;
+        int newY = followerLocation.getY() + offsetY;
         LocalPoint newLocation = new LocalPoint(newX, newY);
+
+        // Calculate the angle between the follower and the player
+        Player player = client.getLocalPlayer();
+        int dx = player.getLocalLocation().getX() - newX;
+        int dy = player.getLocalLocation().getY() - newY;
+        int angle = (int) ((Math.atan2(-dy, dx) * config.angleMultiplier()) / (2 * Math.PI) + config.angleShift()) % 2048;
+
+        // Create a new Angle object with the calculated angle
+        Angle followerOrientation = new Angle(angle);
 
         if (transmogObjects != null) {
             for (RuneLiteObject transmogObject : transmogObjects) {
                 if (transmogObject != null) {
-                    transmogObject.setLocation(followerLocation, worldView.getPlane());
-                    transmogObject.setOrientation(follower.getCurrentOrientation());// Set other properties as needed
-
+                    transmogObject.setLocation(newLocation, worldView.getPlane());
+                    // Set the follower's orientation to face the player
+                    transmogObject.setOrientation(followerOrientation.getAngle());
                 }
             }
         }
     }
+
 
     public Model createNpcModel() {
         TransmogData selectedNpc = config.selectedNpc();
