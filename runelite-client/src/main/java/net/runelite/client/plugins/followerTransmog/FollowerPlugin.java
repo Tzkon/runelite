@@ -7,6 +7,7 @@ import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.coords.WorldArea;
 import net.runelite.api.events.ClientTick;
+import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
 import net.runelite.client.callback.Hooks;
 import net.runelite.client.config.ConfigManager;
@@ -64,6 +65,24 @@ public class FollowerPlugin extends Plugin {
         previousStandingFrame = -1;
         System.out.println("Logged off Runelite");
     }
+
+    @Subscribe
+    public void onGameStateChanged(GameStateChanged event)
+    {
+        if (client.getGameState() != GameState.LOGGED_IN) {
+
+//            hooks.unregisterRenderableDrawListener(drawListener);
+            hasFollower = false;
+            transmogInitialized = false;
+            isMoving = false;
+            previouslyMoved = false;
+            transmogObjects = null;
+            previousWalkingFrame = -1;
+            previousStandingFrame = -1;
+            System.out.println("game state reset");
+        }
+    }
+
 
     @Subscribe
     public void onClientTick(ClientTick event) {
@@ -255,9 +274,15 @@ public class FollowerPlugin extends Plugin {
         // Create a new Angle object with the calculated angle
         Angle followerOrientation = new Angle(angle);
 
+        if (transmogObjects == null) {
+            System.out.println("null transmogObject");
+        }
+
+
         if (transmogObjects != null) {
             for (RuneLiteObject transmogObject : transmogObjects) {
                 if (transmogObject != null) {
+//                    transmogObject.setActive(true);
                     transmogObject.setLocation(newLocation, worldView.getPlane());
                     // Set the follower's orientation to face the player
                     transmogObject.setOrientation(followerOrientation.getAngle());
