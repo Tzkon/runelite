@@ -1,14 +1,11 @@
-package net.runelite.client.plugins.followerTransmog;
+package net.runelite.client.plugins.companion;
 
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 
-import javax.swing.*;
-import java.util.Arrays;
-
-@ConfigGroup(FollowerConfig.GROUP)
-public interface FollowerConfig extends Config {
+@ConfigGroup(CompanionConfig.GROUP)
+public interface CompanionConfig extends Config {
     String GROUP = "followerTransmog";
 
     @ConfigItem(
@@ -17,8 +14,8 @@ public interface FollowerConfig extends Config {
             description = "Select an NPC to transmog into",
             position = 0
     )
-    default TransmogData selectedNpc() {
-        return TransmogData.CUSTOM; // Assuming you have a NONE option in TransmogData
+    default CompanionData selectedNpc() {
+        return CompanionData.CUSTOM; // Assuming you have a NONE option in TransmogData
     }
 
     @ConfigItem(
@@ -217,6 +214,7 @@ public interface FollowerConfig extends Config {
             description = "Vertical offset for the transmog object",
             position = 19
     )
+
     default int offsetY() {
         return 0; // Default vertical offset
     }
@@ -238,5 +236,35 @@ public interface FollowerConfig extends Config {
     )
     default int angleShift() {
         return 1024; // Default shift
+    }
+
+    @ConfigItem(
+            keyName = "xCoordinate",
+            name = "x Coordinate",
+            description = "x position for transmog",
+            position = 22
+    )
+    default int xCoordinate() {
+        return 3212;  //default x
+    }
+
+    @ConfigItem(
+            keyName = "yCoordinate",
+            name = "y Coordinate",
+            description = "y position for transmog",
+            position = 23
+    )
+    default int yCoordinate() {
+        return 6084;  //default x
+    }
+
+    @ConfigItem(
+            keyName = "walkingSpeed",
+            name = "walking speed",
+            description = "walking speed",
+            position = 24
+    )
+    default int walkingSpeed() {
+        return 1;  //default x
     }
 }
