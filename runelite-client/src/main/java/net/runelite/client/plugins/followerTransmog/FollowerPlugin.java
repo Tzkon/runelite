@@ -17,7 +17,9 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.callback.ClientThread;
 import javax.inject.Inject;
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 @PluginDescriptor(
         name = "FollowerTransmog",
@@ -41,6 +43,8 @@ public class FollowerPlugin extends Plugin {
     private boolean isMoving = false;
     private boolean previouslyMoved = false;
     private int currentFrame;
+    private WorldArea[][] world; // The game world
+    Map<WorldPoint, List<WorldPoint>> graph = new HashMap<>();
 
     @Provides
     FollowerConfig provideConfig(ConfigManager configManager) {
@@ -344,6 +348,108 @@ public class FollowerPlugin extends Plugin {
 
         return finalModel;
     }
+
+
+    private void renderTileIfValidForMovement(Graphics2D graphics, Actor actor, int dx, int dy)
+    {
+        WorldArea area = actor.getWorldArea();
+        if (area == null)
+        {
+            return;
+        }
+
+        if (area.canTravelInDirection(client.getTopLevelWorldView(), dx, dy))
+        {
+            LocalPoint lp = actor.getLocalLocation();
+            if (lp == null)
+            {
+                return;
+            }
+
+            lp = new LocalPoint(
+                    lp.getX() + dx * Perspective.LOCAL_TILE_SIZE + dx * Perspective.LOCAL_TILE_SIZE * (area.getWidth() - 1) / 2,
+                    lp.getY() + dy * Perspective.LOCAL_TILE_SIZE + dy * Perspective.LOCAL_TILE_SIZE * (area.getHeight() - 1) / 2);
+
+            // Convert the local point to a world point
+            WorldPoint wp = WorldPoint.fromLocal(client, lp);
+
+            // Get the actor's current location
+            WorldPoint actorLocation = actor.getWorldLocation();
+
+            // Add the neighboring tile to the graph
+            graph.putIfAbsent(actorLocation, new ArrayList<>());
+            graph.get(actorLocation).add(wp);
+        }
+    }
+
+    public class AStar {
+        private Map<WorldPoint, WorldPoint> cameFrom = new HashMap<>();
+        private Map<WorldPoint, Double> gScore = new HashMap<>();
+        private Map<WorldPoint, Double> fScore = new HashMap<>();
+        private PriorityQueue<WorldPoint> openSet = new PriorityQueue<>(Comparator.comparingDouble(fScore::get));
+
+        private List<WorldPoint> reconstructPath(WorldPoint current) {
+            List<WorldPoint> path = new ArrayList<>();
+            WorldPoint node = current;
+            while (node != null) {
+                path.add(node);
+                node = cameFrom.get(node);
+            }
+            Collections.reverse(path); // Reverse the path to get it from start to goal
+            return path;
+        }
+
+        public List<WorldPoint> findPath(WorldPoint start, WorldPoint goal) {
+            openSet.add(start);
+            gScore.put(start, 0.0);
+            fScore.put(start, heuristicCostEstimate(start, goal));
+
+            while (!openSet.isEmpty()) {
+                WorldPoint current = openSet.poll();
+
+                if (current.equals(goal)) {
+                    return reconstructPath(current);
+                }
+
+                openSet.remove(current);
+
+                for (WorldPoint neighbor : getNeighbors(current)) {
+                    double tentativeGScore = gScore.get(current) + distBetween(current, neighbor);
+
+                    if (!gScore.containsKey(neighbor) || tentativeGScore < gScore.get(neighbor)) {
+                        cameFrom.put(neighbor, current);
+                        gScore.put(neighbor, tentativeGScore);
+                        fScore.put(neighbor, gScore.get(neighbor) + heuristicCostEstimate(neighbor, goal));
+
+                        if (!openSet.contains(neighbor)) {
+                            openSet.add(neighbor);
+                        }
+                    }
+                }
+            }
+
+            return null; // Failure
+        }
+
+        // Other methods (heuristicCostEstimate, distBetween, getNeighbors, reconstructPath, etc.) go here
+        private double heuristicCostEstimate(WorldPoint start, WorldPoint goal) {
+            return Math.abs(start.getX() - goal.getX()) + Math.abs(start.getY() - goal.getY());
+        }
+
+    }
+
+    private double distBetween(WorldPoint current, WorldPoint neighbor) {
+        if (current.getX() != neighbor.getX() && current.getY() != neighbor.getY()) {
+            return Math.sqrt(2); // Diagonal move
+        } else {
+            return 1; // Horizontal or vertical move
+        }
+    }
+
+    private List<WorldPoint> getNeighbors(WorldPoint current) {
+        return graph.getOrDefault(current, new ArrayList<>());
+    }
+
 
     boolean shouldDraw(Renderable renderable, boolean drawingUI)
     {
