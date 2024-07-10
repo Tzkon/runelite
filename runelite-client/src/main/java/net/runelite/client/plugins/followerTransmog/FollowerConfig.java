@@ -4,9 +4,6 @@ import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 
-import javax.swing.*;
-import java.util.Arrays;
-
 @ConfigGroup(FollowerConfig.GROUP)
 public interface FollowerConfig extends Config {
     String GROUP = "followerTransmog";
@@ -18,7 +15,7 @@ public interface FollowerConfig extends Config {
             position = 0
     )
     default TransmogData selectedNpc() {
-        return TransmogData.CUSTOM; // Assuming you have a NONE option in TransmogData
+        return TransmogData.CUSTOM;
     }
 
     @ConfigItem(

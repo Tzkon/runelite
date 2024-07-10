@@ -18,8 +18,8 @@ import javax.inject.Inject;
 import java.util.*;
 
 @PluginDescriptor(
-        name = "FollowerTransmog",
-        description = "Alter the appearance of your pets/followers"
+        name = "Pet to NPC Transmog",
+        description = "Customize your pets appearance to be any NPC/Object"
 )
 public class FollowerPlugin extends Plugin {
     @Inject private Client client;
