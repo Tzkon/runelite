@@ -220,6 +220,7 @@ public interface FollowerConfig extends Config {
     default int offsetY() {
         return 0; // Default vertical offset
     }
+    /*
     @ConfigItem(
             keyName = "angleMultiplier",
             name = "Angle Multiplier",
@@ -249,5 +250,6 @@ public interface FollowerConfig extends Config {
     default int rotationSpeed() {
         return 10; // Default shift
     }
+     */
 
 }
