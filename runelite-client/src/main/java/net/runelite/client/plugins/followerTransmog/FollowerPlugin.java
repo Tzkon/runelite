@@ -41,6 +41,7 @@ public class FollowerPlugin extends Plugin {
     private boolean isMoving = false;
     private boolean previouslyMoved = false;
     private int currentFrame;
+    private int targetOrientation = -1;
 
     @Provides
     FollowerConfig provideConfig(ConfigManager configManager) {
@@ -204,8 +205,16 @@ public class FollowerPlugin extends Plugin {
                 transmogObject.setActive(true);
                 transmogObject.setShouldLoop(true);
 
-                if (shouldUpdateAnimation(previousWalkingFrame, currentFrame)) {
+                if(previousWalkingFrame == -1) {
                     transmogObject.setAnimation(walkingAnimation);
+                    System.out.println("WALKING! previousWalkingFrame == -1 | previous: "
+                            + previousWalkingFrame + "current: " + currentFrame );
+                }
+
+                if (previousWalkingFrame > currentFrame) {
+                    transmogObject.setAnimation(walkingAnimation);
+                    System.out.println("WALKING! previousWalkingFrame > currentFrame | previous: "
+                            + previousWalkingFrame + "current: " + currentFrame );
                 }
 
                 previousWalkingFrame = currentFrame;
@@ -214,9 +223,9 @@ public class FollowerPlugin extends Plugin {
         });
     }
 
-    private boolean shouldUpdateAnimation(int previousFrame, int currentFrame) {
-        return previousFrame == -1 || previousFrame > currentFrame;
-    }
+//    private boolean shouldUpdateAnimation(int previousFrame, int currentFrame) {
+//        return previousFrame == -1 || previousFrame > currentFrame;
+//    }
 
     private void handleStandingAnimation(NPC follower) {
         TransmogData selectedNpc = config.selectedNpc();
@@ -241,10 +250,14 @@ public class FollowerPlugin extends Plugin {
                 transmogObject.setShouldLoop(true);
                 if(previousStandingFrame == -1) {
                     transmogObject.setAnimation(standingAnimation);
+                    System.out.println("STANDING! previousStandingFrame == -1 | previous: "
+                            + previousStandingFrame + "current: " + currentFrame );
                 }
 
                 if (previousStandingFrame > currentFrame) {
                     transmogObject.setAnimation(standingAnimation);
+                    System.out.println("STANDING! previousStandingFrame > currentFrame | previous: "
+                            + previousStandingFrame + "current: " + currentFrame );
                 }
                 previousStandingFrame = currentFrame;
                 previouslyMoved = false;
@@ -270,6 +283,17 @@ public class FollowerPlugin extends Plugin {
         int dx = player.getLocalLocation().getX() - newX;
         int dy = player.getLocalLocation().getY() - newY;
         int angle = (int) ((Math.atan2(-dy, dx) * config.angleMultiplier()) / (2 * Math.PI) + config.angleShift()) % 2048;
+//        int angle = (int) ((Math.atan2(-dy, dx) * 2048) / (2 * Math.PI) + 1500) % 2048;
+
+// If the offset is set to 0, use the follower's current orientation
+        if (config.offsetX() == 0 && config.offsetY() == 0) {
+            angle = follower.getCurrentOrientation();
+        } else {
+            angle = (int) ((Math.atan2(-dy, dx) * config.angleMultiplier()) / (2 * Math.PI) + config.angleShift()) % 2048;
+        }
+
+        // Set the target orientation to the calculated angle
+        targetOrientation = angle;
 
         // Create a new Angle object with the calculated angle
         Angle followerOrientation = new Angle(angle);
@@ -286,6 +310,14 @@ public class FollowerPlugin extends Plugin {
                     transmogObject.setLocation(newLocation, worldView.getPlane());
                     // Set the follower's orientation to face the player
                     transmogObject.setOrientation(followerOrientation.getAngle());
+                    int currentOrientation = transmogObject.getOrientation();
+                    if (currentOrientation != targetOrientation) {
+                        int diff = (targetOrientation - currentOrientation + 2048) % 2048;
+                        if (diff > 1024) diff -= 2048;
+                        if (diff < -config.rotationSpeed()) diff = -config.rotationSpeed();
+                        else if (diff > config.rotationSpeed()) diff = config.rotationSpeed();
+                        transmogObject.setOrientation((currentOrientation + diff + 2048) % 2048);
+                    }
                 }
             }
         }

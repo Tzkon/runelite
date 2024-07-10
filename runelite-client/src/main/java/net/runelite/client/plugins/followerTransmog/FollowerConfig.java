@@ -239,4 +239,15 @@ public interface FollowerConfig extends Config {
     default int angleShift() {
         return 1024; // Default shift
     }
+
+    @ConfigItem(
+            keyName = "rotationSpeed",
+            name = "Rotation Speed",
+            description = "Value to change the speed of rotation",
+            position = 22
+    )
+    default int rotationSpeed() {
+        return 10; // Default shift
+    }
+
 }
