@@ -156,56 +156,20 @@ public interface FollowerConfig extends Config {
     }
 
     @ConfigItem(
-            keyName = "walkingAnimationSpeed",
-            name = "Walking Animation Speed",
-            description = "30 = one tick animation, 60 = two tick animation",
-            position = 13
-    )
-    default int walkingAnimationSpeed() {return -1; // Default walking animation ID
-    }
-
-    @ConfigItem(
-            keyName = "standingAnimationSpeed",
-            name = "Idle Animation Speed",
-            description = "30 = one tick animation, 60 = two tick animation",
-            position = 14
-    )
-    default int standingAnimationSpeed() {return -1; // Default walking animation ID
-    }
-
-    @ConfigItem(
-            keyName = "modelSize",
-            name = "Model Size",
-            description = "Enter the size you want the NPC",
-            position = 15
-    )
-    default int modelSize() {return -1; // Default walking animation ID
-    }
-
-    @ConfigItem(
             keyName = "transmogRadius",
             name = "Transmog Radius",
-            description = "Set the radius for the transmog object",
-            position = 16
+            description = "Set the radius for the model",
+            position = 13
     )
     default int transmogRadius() {
         return 320; // Default radius
     }
 
     @ConfigItem(
-            keyName = "drawFrontTilesFirst",
-            name = "Draw Front Tiles First",
-            description = "Set whether to draw front tiles first for the transmog object",
-            position = 17
-    )
-    default boolean drawFrontTilesFirst() {
-        return true; // Default value
-    }
-    @ConfigItem(
             keyName = "offsetX",
             name = "Offset X",
-            description = "Horizontal offset for the transmog object",
-            position = 18
+            description = "Horizontal offset for the model",
+            position = 14
     )
     default int offsetX() {
         return 0; // Default horizontal offset
@@ -214,42 +178,10 @@ public interface FollowerConfig extends Config {
     @ConfigItem(
             keyName = "offsetY",
             name = "Offset Y",
-            description = "Vertical offset for the transmog object",
-            position = 19
+            description = "Vertical offset for the model",
+            position = 15
     )
     default int offsetY() {
         return 0; // Default vertical offset
     }
-    /*
-    @ConfigItem(
-            keyName = "angleMultiplier",
-            name = "Angle Multiplier",
-            description = "Multiplier for the angle calculation",
-            position = 20
-    )
-    default int angleMultiplier() {
-        return 2047; // Default multiplier
-    }
-
-    @ConfigItem(
-            keyName = "angleShift",
-            name = "Angle Shift",
-            description = "Value to shift the angle range",
-            position = 21
-    )
-    default int angleShift() {
-        return 1024; // Default shift
-    }
-
-    @ConfigItem(
-            keyName = "rotationSpeed",
-            name = "Rotation Speed",
-            description = "Value to change the speed of rotation",
-            position = 22
-    )
-    default int rotationSpeed() {
-        return 10; // Default shift
-    }
-     */
-
 }

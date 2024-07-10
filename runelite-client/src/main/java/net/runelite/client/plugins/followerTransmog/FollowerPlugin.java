@@ -4,8 +4,6 @@ import com.google.inject.Provides;
 import net.runelite.api.*;
 import net.runelite.api.coords.Angle;
 import net.runelite.api.coords.LocalPoint;
-import net.runelite.api.coords.WorldPoint;
-import net.runelite.api.coords.WorldArea;
 import net.runelite.api.events.ClientTick;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
@@ -80,6 +78,7 @@ public class FollowerPlugin extends Plugin {
             transmogObjects = null;
             previousWalkingFrame = -1;
             previousStandingFrame = -1;
+
             System.out.println("game state reset");
         }
     }
@@ -133,6 +132,9 @@ public class FollowerPlugin extends Plugin {
                     RuneLiteObject transmogObject = transmogObjects.get(0);
                     transmogObject.setModel(mergedModel);
                     transmogObject.setActive(true);
+                    if (config.selectedNpc() == TransmogData.CUSTOM) {
+                        transmogObject.setRadius(config.transmogRadius());
+                    }
                     System.out.println("Transmog object updated with new model.");
                 }
             });
@@ -149,7 +151,6 @@ public class FollowerPlugin extends Plugin {
                 transmogObject.setActive(true);
 
                 if (config.selectedNpc() == TransmogData.CUSTOM) {
-                    transmogObject.setDrawFrontTilesFirst(config.drawFrontTilesFirst());
                     transmogObject.setRadius(config.transmogRadius());
                 }
             }
@@ -282,14 +283,13 @@ public class FollowerPlugin extends Plugin {
         Player player = client.getLocalPlayer();
         int dx = player.getLocalLocation().getX() - newX;
         int dy = player.getLocalLocation().getY() - newY;
-        int angle = (int) ((Math.atan2(-dy, dx) * config.angleMultiplier()) / (2 * Math.PI) + config.angleShift()) % 2048;
-//        int angle = (int) ((Math.atan2(-dy, dx) * 2048) / (2 * Math.PI) + 1500) % 2048;
+        int angle;
 
 // If the offset is set to 0, use the follower's current orientation
         if (config.offsetX() == 0 && config.offsetY() == 0) {
             angle = follower.getCurrentOrientation();
         } else {
-            angle = (int) ((Math.atan2(-dy, dx) * config.angleMultiplier()) / (2 * Math.PI) + config.angleShift()) % 2048;
+            angle = (int) ((Math.atan2(-dy, dx) * 2048) / (2 * Math.PI) + 1500) % 2048;
         }
 
         // Set the target orientation to the calculated angle
@@ -303,6 +303,7 @@ public class FollowerPlugin extends Plugin {
         }
 
 
+
         if (transmogObjects != null) {
             for (RuneLiteObject transmogObject : transmogObjects) {
                 if (transmogObject != null) {
@@ -310,14 +311,11 @@ public class FollowerPlugin extends Plugin {
                     transmogObject.setLocation(newLocation, worldView.getPlane());
                     // Set the follower's orientation to face the player
                     transmogObject.setOrientation(followerOrientation.getAngle());
-                    int currentOrientation = transmogObject.getOrientation();
-                    if (currentOrientation != targetOrientation) {
-                        int diff = (targetOrientation - currentOrientation + 2048) % 2048;
-                        if (diff > 1024) diff -= 2048;
-                        if (diff < -config.rotationSpeed()) diff = -config.rotationSpeed();
-                        else if (diff > config.rotationSpeed()) diff = config.rotationSpeed();
-                        transmogObject.setOrientation((currentOrientation + diff + 2048) % 2048);
+
+                    if (config.selectedNpc() == TransmogData.CUSTOM) {
+                        transmogObject.setRadius(config.transmogRadius());
                     }
+
                 }
             }
         }
