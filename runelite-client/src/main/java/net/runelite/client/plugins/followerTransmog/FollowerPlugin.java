@@ -154,7 +154,8 @@ public class FollowerPlugin extends Plugin
 
 		if (event.getKey().equals("selectedNpc") || config.enableCustom() || !config.enableCustom())
 		{
-			clientThread.invokeLater(() -> {
+			clientThread.invokeLater(() ->
+			{
 
 				// Create and set the new model
 				Model mergedModel = createNpcModel();
@@ -220,7 +221,8 @@ public class FollowerPlugin extends Plugin
 			return;
 		}
 
-		transmogObjects.forEach(transmogObject -> {
+		transmogObjects.forEach(transmogObject ->
+		{
 			if (transmogObject != null)
 			{
 				currentFrame = transmogObject.getAnimationFrame();
@@ -320,11 +322,6 @@ public class FollowerPlugin extends Plugin
 
 		Angle followerOrientation = new Angle(angle);
 
-		if (transmogObjects == null)
-		{
-			System.out.println("null transmogObject");
-		}
-
 
 		if (transmogObjects != null)
 		{
@@ -340,7 +337,7 @@ public class FollowerPlugin extends Plugin
 	}
 
 	//grab the modelID's from the enum within TransmogData file for preset models,
-//or if custom model ids are used it grabs from config. They are then merged to create a complete model
+	//or if custom model ids are used it grabs from config. They are then merged to create a complete model
 	public Model createNpcModel()
 	{
 		TransmogData selectedNpc = config.selectedNpc();

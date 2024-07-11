@@ -15,7 +15,7 @@ public enum TransmogData
 	Guthan("Guthan", Lists.newArrayList(6654, 6673, 6642, 6666, 6679, 6710), 813, 1205, 60),
 	Nightmare("Nightmare", Lists.newArrayList(39196), 8593, 8634, 300),
 	NIEVE("Nieve", Lists.newArrayList(392, 27644, 27640, 19951, 3661, 28827, 9644, 27654, 9640, 11048), 813, 1205, 60),
-	DrunkenDwarf("Drunken Dwarf", Lists.newArrayList(2974,2986,2983,2979,2981,2985,2992),900,104,60);
+	DrunkenDwarf("Drunken Dwarf", Lists.newArrayList(2974, 2986, 2983, 2979, 2981, 2985, 2992), 900, 104, 60);
 
 	// Getters for each property
 	final String name;
