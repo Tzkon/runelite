@@ -17,14 +17,25 @@ public interface FollowerConfig extends Config
 	)
 	default TransmogData selectedNpc()
 	{
-		return TransmogData.CUSTOM;
+		return TransmogData.GnomeChild;
+	}
+
+	@ConfigItem(
+		keyName = "enableCustom",
+		name = "Enable Custom Configuration",
+		description = "Check this box to enable custom configuration",
+		position = 1
+	)
+	default boolean enableCustom()
+	{
+		return false;
 	}
 
 	@ConfigItem(
 		keyName = "npcModelID1",
-		name = "NPC Model ID1",
+		name = "CUSTOM ModelID1",
 		description = "Enter the model ID of the NPC you want to overlay",
-		position = 1
+		position = 2
 	)
 	default int npcModelID1()
 	{
@@ -33,9 +44,9 @@ public interface FollowerConfig extends Config
 
 	@ConfigItem(
 		keyName = "npcModelID2",
-		name = "NPC Model ID2",
+		name = "CUSTOM ModelID2",
 		description = "Enter the model ID of the NPC you want to overlay",
-		position = 2
+		position = 3
 	)
 	default int npcModelID2()
 	{
@@ -45,9 +56,9 @@ public interface FollowerConfig extends Config
 
 	@ConfigItem(
 		keyName = "npcModelID3",
-		name = "NPC Model ID3",
+		name = "CUSTOM ModelID3",
 		description = "Enter the model ID of the NPC you want to overlay",
-		position = 3
+		position = 4
 	)
 	default int npcModelID3()
 	{
@@ -56,9 +67,9 @@ public interface FollowerConfig extends Config
 
 	@ConfigItem(
 		keyName = "npcModelID4",
-		name = "NPC Model ID4",
+		name = "CUSTOM ModelID4",
 		description = "Enter the model ID of the NPC you want to overlay",
-		position = 4
+		position = 5
 	)
 	default int npcModelID4()
 	{
@@ -67,9 +78,9 @@ public interface FollowerConfig extends Config
 
 	@ConfigItem(
 		keyName = "npcModelID5",
-		name = "NPC Model ID5",
+		name = "CUSTOM ModelID5",
 		description = "Enter the model ID of the NPC you want to overlay",
-		position = 5
+		position = 6
 	)
 	default int npcModelID5()
 	{
@@ -78,9 +89,9 @@ public interface FollowerConfig extends Config
 
 	@ConfigItem(
 		keyName = "npcModelID6",
-		name = "NPC Model ID6",
+		name = "CUSTOM ModelID6",
 		description = "Enter the model ID of the NPC you want to overlay",
-		position = 6
+		position = 7
 	)
 	default int npcModelID6()
 	{
@@ -89,9 +100,9 @@ public interface FollowerConfig extends Config
 
 	@ConfigItem(
 		keyName = "npcModelID7",
-		name = "NPC Model ID7",
+		name = "CUSTOM ModelID7",
 		description = "Enter the model ID of the NPC you want to overlay",
-		position = 7
+		position = 8
 	)
 	default int npcModelID7()
 	{
@@ -100,9 +111,9 @@ public interface FollowerConfig extends Config
 
 	@ConfigItem(
 		keyName = "npcModelID8",
-		name = "NPC Model ID8",
+		name = "CUSTOM ModelID8",
 		description = "Enter the model ID of the NPC you want to overlay",
-		position = 8
+		position = 9
 	)
 	default int npcModelID8()
 	{
@@ -111,9 +122,9 @@ public interface FollowerConfig extends Config
 
 	@ConfigItem(
 		keyName = "npcModelID9",
-		name = "NPC Model ID9",
+		name = "CUSTOM ModelID9",
 		description = "Enter the model ID of the NPC you want to overlay",
-		position = 9
+		position = 10
 	)
 	default int npcModelID9()
 	{
@@ -122,9 +133,9 @@ public interface FollowerConfig extends Config
 
 	@ConfigItem(
 		keyName = "npcModelID10",
-		name = "NPC Model ID10",
+		name = "CUSTOM ModelID10",
 		description = "Enter the model ID of the NPC you want to overlay",
-		position = 10
+		position = 11
 	)
 	default int npcModelID10()
 	{
@@ -136,7 +147,7 @@ public interface FollowerConfig extends Config
 		keyName = "standingAnimationId",
 		name = "Standing Animation ID",
 		description = "Enter the standing animation ID for the NPC",
-		position = 11
+		position = 12
 	)
 	default int standingAnimationId()
 	{
@@ -147,7 +158,7 @@ public interface FollowerConfig extends Config
 		keyName = "walkingAnimationId",
 		name = "Walking Animation ID",
 		description = "Enter the walking animation ID for the NPC",
-		position = 12
+		position = 13
 	)
 	default int walkingAnimationId()
 	{
@@ -158,18 +169,18 @@ public interface FollowerConfig extends Config
 		keyName = "transmogRadius",
 		name = "Transmog Radius",
 		description = "Set the radius for the model",
-		position = 13
+		position = 14
 	)
 	default int transmogRadius()
 	{
-		return 320; // Default radius
+		return 60; // Default radius
 	}
 
 	@ConfigItem(
 		keyName = "offsetX",
 		name = "Offset X",
 		description = "Horizontal offset for the model",
-		position = 14
+		position = 15
 	)
 	default int offsetX()
 	{
@@ -180,7 +191,7 @@ public interface FollowerConfig extends Config
 		keyName = "offsetY",
 		name = "Offset Y",
 		description = "Vertical offset for the model",
-		position = 15
+		position = 16
 	)
 	default int offsetY()
 	{
