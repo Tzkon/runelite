@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.followerTransmog;
+package net.runelite.client.plugins.followertransmog;
 
 import com.google.inject.Provides;
 import net.runelite.api.*;
@@ -40,6 +40,8 @@ public class FollowerPlugin extends Plugin
 	private int previousWalkingFrame = -1;
 	private int previousStandingFrame = -1;
 	private int currentFrame;
+	private boolean wasMoving = false;
+	private boolean wasStanding = false;
 
 	@Provides
 	FollowerConfig provideConfig(ConfigManager configManager)
@@ -187,10 +189,33 @@ public class FollowerPlugin extends Plugin
 		lastFollowerLocation = currentLocation;
 		if (isFollowerMoving)
 		{
+			if (wasStanding)
+			{
+				for (RuneLiteObject transmogObject : transmogObjects)
+				{
+					if (transmogObject != null)
+					{
+						transmogObject.setFinished(true);
+					}
+				}
+			}
+			wasStanding = false;
 			handleWalkingAnimation(follower);
 		}
 		else
 		{
+			if (wasMoving)
+			{
+				for (RuneLiteObject transmogObject : transmogObjects)
+				{
+					if (transmogObject != null)
+					{
+						transmogObject.setFinished(true);
+					}
+				}
+			}
+			wasMoving = false;
+			wasStanding = true;
 			handleStandingAnimation(follower);
 		}
 	}
@@ -226,6 +251,7 @@ public class FollowerPlugin extends Plugin
 			if (transmogObject != null)
 			{
 				currentFrame = transmogObject.getAnimationFrame();
+				System.out.println("current walking: " + currentFrame + " previous walking" + previousWalkingFrame);
 				transmogObject.setActive(true);
 				transmogObject.setShouldLoop(true);
 
@@ -271,6 +297,8 @@ public class FollowerPlugin extends Plugin
 			if (transmogObject != null && followerLoop != null)
 			{
 				currentFrame = transmogObject.getAnimationFrame();
+				System.out.println("current standing: " + currentFrame + " previous standing" + previousStandingFrame);
+
 				transmogObject.setActive(true);
 				transmogObject.setShouldLoop(true);
 				if (previousStandingFrame == -1)

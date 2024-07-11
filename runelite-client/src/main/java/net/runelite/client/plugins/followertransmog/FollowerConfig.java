@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.followerTransmog;
+package net.runelite.client.plugins.followertransmog;
 
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;

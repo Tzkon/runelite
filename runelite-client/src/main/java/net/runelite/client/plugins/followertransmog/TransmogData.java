@@ -1,4 +1,4 @@
-package net.runelite.client.plugins.followerTransmog;
+package net.runelite.client.plugins.followertransmog;
 
 import com.google.common.collect.Lists;
 import lombok.Getter;
