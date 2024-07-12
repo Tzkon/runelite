@@ -12,7 +12,7 @@ public interface FollowerConfig extends Config
 	@ConfigItem(
 		keyName = "selectedNpc",
 		name = "Select NPC",
-		description = "Select an NPC to transmog into",
+		description = "Have your pet out and select one of these sample NPCs. Cats/kittens work as well.",
 		position = 0
 	)
 	default TransmogData selectedNpc()
@@ -23,7 +23,10 @@ public interface FollowerConfig extends Config
 	@ConfigItem(
 		keyName = "enableCustom",
 		name = "Enable Custom Configuration",
-		description = "Check this box to enable custom configuration",
+		description = "Check this box to enable custom configuration. To find the modelIDs and AnimationIDs for an NPC, " +
+			"you can perform a web search for 'OSRS NPC modelIDs' or 'RuneScape animation IDs'. Some users have found " +
+			"resources like https://runemonk.com/tools/entityviewer/ or https://chisel.weirdgloop.org/moid/index.html site " +
+			"to be helpful. Please note that these are external sites and may change over time.",
 		position = 1
 	)
 	default boolean enableCustom()
@@ -31,10 +34,13 @@ public interface FollowerConfig extends Config
 		return false;
 	}
 
+
 	@ConfigItem(
 		keyName = "npcModelID1",
 		name = "CUSTOM ModelID1",
-		description = "Enter the model ID of the NPC you want to overlay",
+		description = "Enter the modelID of the NPC you want to overlay. Most NPC's will have a single ModelIDs" +
+			"you can leave the rest of the ModelID fields at 0 if this is the case.  Make sure you are using the " +
+			"ModelID and not the NPCID.",
 		position = 2
 	)
 	default int npcModelID1()
@@ -45,7 +51,7 @@ public interface FollowerConfig extends Config
 	@ConfigItem(
 		keyName = "npcModelID2",
 		name = "CUSTOM ModelID2",
-		description = "Enter the model ID of the NPC you want to overlay",
+		description = "Used when an NPC has multiple ModelIDs",
 		position = 3
 	)
 	default int npcModelID2()
@@ -57,7 +63,7 @@ public interface FollowerConfig extends Config
 	@ConfigItem(
 		keyName = "npcModelID3",
 		name = "CUSTOM ModelID3",
-		description = "Enter the model ID of the NPC you want to overlay",
+		description = "Used when an NPC has multiple ModelIDs",
 		position = 4
 	)
 	default int npcModelID3()
@@ -68,7 +74,7 @@ public interface FollowerConfig extends Config
 	@ConfigItem(
 		keyName = "npcModelID4",
 		name = "CUSTOM ModelID4",
-		description = "Enter the model ID of the NPC you want to overlay",
+		description = "Used when an NPC has multiple ModelIDs",
 		position = 5
 	)
 	default int npcModelID4()
@@ -79,7 +85,7 @@ public interface FollowerConfig extends Config
 	@ConfigItem(
 		keyName = "npcModelID5",
 		name = "CUSTOM ModelID5",
-		description = "Enter the model ID of the NPC you want to overlay",
+		description = "Used when an NPC has multiple ModelIDs",
 		position = 6
 	)
 	default int npcModelID5()
@@ -90,7 +96,7 @@ public interface FollowerConfig extends Config
 	@ConfigItem(
 		keyName = "npcModelID6",
 		name = "CUSTOM ModelID6",
-		description = "Enter the model ID of the NPC you want to overlay",
+		description = "Used when an NPC has multiple ModelIDs",
 		position = 7
 	)
 	default int npcModelID6()
@@ -101,7 +107,7 @@ public interface FollowerConfig extends Config
 	@ConfigItem(
 		keyName = "npcModelID7",
 		name = "CUSTOM ModelID7",
-		description = "Enter the model ID of the NPC you want to overlay",
+		description = "Used when an NPC has multiple ModelIDs",
 		position = 8
 	)
 	default int npcModelID7()
@@ -112,7 +118,7 @@ public interface FollowerConfig extends Config
 	@ConfigItem(
 		keyName = "npcModelID8",
 		name = "CUSTOM ModelID8",
-		description = "Enter the model ID of the NPC you want to overlay",
+		description = "Used when an NPC has multiple ModelIDs",
 		position = 9
 	)
 	default int npcModelID8()
@@ -123,7 +129,7 @@ public interface FollowerConfig extends Config
 	@ConfigItem(
 		keyName = "npcModelID9",
 		name = "CUSTOM ModelID9",
-		description = "Enter the model ID of the NPC you want to overlay",
+		description = "Used when an NPC has multiple ModelIDs",
 		position = 10
 	)
 	default int npcModelID9()
@@ -134,7 +140,7 @@ public interface FollowerConfig extends Config
 	@ConfigItem(
 		keyName = "npcModelID10",
 		name = "CUSTOM ModelID10",
-		description = "Enter the model ID of the NPC you want to overlay",
+		description = "Used when an NPC has multiple ModelIDs",
 		position = 11
 	)
 	default int npcModelID10()
@@ -146,7 +152,7 @@ public interface FollowerConfig extends Config
 	@ConfigItem(
 		keyName = "standingAnimationId",
 		name = "Standing Animation ID",
-		description = "Enter the standing animation ID for the NPC",
+		description = "Enter the standingAnimation ID of the NPC",
 		position = 12
 	)
 	default int standingAnimationId()
@@ -157,7 +163,7 @@ public interface FollowerConfig extends Config
 	@ConfigItem(
 		keyName = "walkingAnimationId",
 		name = "Walking Animation ID",
-		description = "Enter the walking animation ID for the NPC",
+		description = "Enter the walkingAnimation ID of the NPC",
 		position = 13
 	)
 	default int walkingAnimationId()
@@ -166,12 +172,13 @@ public interface FollowerConfig extends Config
 	}
 
 	@ConfigItem(
-		keyName = "transmogRadius",
-		name = "Transmog Radius",
-		description = "Set the radius for the model",
+		keyName = "modelRadius",
+		name = "NPC Radius",
+		description = "Set the radius for the model, larger models will clip if it has a small radius set." +
+			"Rule of thumb: for each square the NPC takes up add 60.  eg) 1 tile NPC = 60, 3 tile NPC = 180",
 		position = 14
 	)
-	default int transmogRadius()
+	default int modelRadius()
 	{
 		return 60; // Default radius
 	}
@@ -179,7 +186,8 @@ public interface FollowerConfig extends Config
 	@ConfigItem(
 		keyName = "offsetX",
 		name = "Offset X",
-		description = "Horizontal offset for the model",
+		description = "Horizontal offset for the model.  Larger models will be too close if set to the default 0." +
+			"  Try increasing to find the position you want",
 		position = 15
 	)
 	default int offsetX()
@@ -190,7 +198,8 @@ public interface FollowerConfig extends Config
 	@ConfigItem(
 		keyName = "offsetY",
 		name = "Offset Y",
-		description = "Vertical offset for the model",
+		description = "Vertical offset for the model.  Larger models will be too close if set to the default 0." +
+			"  Try increasing to find the position you want",
 		position = 16
 	)
 	default int offsetY()

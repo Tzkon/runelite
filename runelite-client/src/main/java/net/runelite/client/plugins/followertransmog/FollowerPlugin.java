@@ -43,6 +43,10 @@ public class FollowerPlugin extends Plugin
 	private boolean wasMoving = false;
 	private boolean wasStanding = false;
 
+	private static final int ANGLE_CONSTANT = 2048;
+	private static final int ANGLE_OFFSET = 1500;
+	private static final int TILE_TO_LOCAL_UNIT = 128;
+
 	@Provides
 	FollowerConfig provideConfig(ConfigManager configManager)
 	{
@@ -52,6 +56,7 @@ public class FollowerPlugin extends Plugin
 	@Override
 	protected void startUp()
 	{
+		initializeVariables();
 		hooks.registerRenderableDrawListener(drawListener);
 	}
 
@@ -59,10 +64,7 @@ public class FollowerPlugin extends Plugin
 	protected void shutDown()
 	{
 		hooks.unregisterRenderableDrawListener(drawListener);
-		transmogInitialized = false;
-		transmogObjects = null;
-		previousWalkingFrame = -1;
-		previousStandingFrame = -1;
+		initializeVariables();
 	}
 
 	@Subscribe
@@ -70,11 +72,16 @@ public class FollowerPlugin extends Plugin
 	{
 		if (client.getGameState() != GameState.LOGGED_IN)
 		{
-			transmogInitialized = false;
-			transmogObjects = null;
-			previousWalkingFrame = -1;
-			previousStandingFrame = -1;
+			initializeVariables();
 		}
+	}
+
+	private void initializeVariables()
+	{
+		transmogInitialized = false;
+		transmogObjects = null;
+		previousWalkingFrame = -1;
+		previousStandingFrame = -1;
 	}
 
 	//Updating the transmogs location and movement using ClientTick used as a check
@@ -100,7 +107,6 @@ public class FollowerPlugin extends Plugin
 				}
 				else
 				{
-					System.out.println("Failed to initialize transmog object.");
 					return;
 				}
 			}
@@ -127,7 +133,7 @@ public class FollowerPlugin extends Plugin
 
 				if (config.enableCustom())
 				{
-					transmogObject.setRadius(config.transmogRadius());
+					transmogObject.setRadius(config.modelRadius());
 				}
 				else
 				{
@@ -168,7 +174,7 @@ public class FollowerPlugin extends Plugin
 					transmogObject.setActive(true);
 					if (config.enableCustom())
 					{
-						transmogObject.setRadius(config.transmogRadius());
+						transmogObject.setRadius(config.modelRadius());
 					}
 					else
 					{
@@ -179,8 +185,9 @@ public class FollowerPlugin extends Plugin
 		}
 	}
 
-	//track the location of your in game follower, if it moves to a new location it will execute walking method
-	//otherwise it will execute standing method
+	//tracking the location of the in game follower, if it moves to a new location it will execute walking method
+	//otherwise it will execute standing method. wasStanding and wasMoving are necessary to cut off animation
+	//looping when you change states
 	private void updateFollowerMovement(NPC follower)
 	{
 		LocalPoint currentLocation = follower.getLocalLocation();
@@ -220,9 +227,10 @@ public class FollowerPlugin extends Plugin
 		}
 	}
 
-	//getAnimationFrame tracks the frames within the walking animation.  Checking if the previous frame is greater
-	//than the current one means the animation loop ended. Only resetting the animation when at the end of the loop
-	//means the animation doesn't get cut off too early or late
+	// Animation looping is handled by getAnimationFrame tracks the frames within the walking animation.  Checking
+	// if the previous frame is greater than the current one meaning the animation loop ended. Only resetting the
+	// animation when at the end of the loop so that the animation doesn't get cut based off the timing of gameTick
+	// or ClientTick
 	private void handleWalkingAnimation(NPC follower)
 	{
 		TransmogData selectedNpc = config.selectedNpc();
@@ -251,7 +259,6 @@ public class FollowerPlugin extends Plugin
 			if (transmogObject != null)
 			{
 				currentFrame = transmogObject.getAnimationFrame();
-				System.out.println("current walking: " + currentFrame + " previous walking" + previousWalkingFrame);
 				transmogObject.setActive(true);
 				transmogObject.setShouldLoop(true);
 
@@ -264,7 +271,6 @@ public class FollowerPlugin extends Plugin
 				{
 					transmogObject.setAnimation(walkingAnimation);
 				}
-
 				previousWalkingFrame = currentFrame;
 			}
 		});
@@ -297,7 +303,6 @@ public class FollowerPlugin extends Plugin
 			if (transmogObject != null && followerLoop != null)
 			{
 				currentFrame = transmogObject.getAnimationFrame();
-				System.out.println("current standing: " + currentFrame + " previous standing" + previousStandingFrame);
 
 				transmogObject.setActive(true);
 				transmogObject.setShouldLoop(true);
@@ -323,11 +328,9 @@ public class FollowerPlugin extends Plugin
 		WorldView worldView = client.getTopLevelWorldView();
 		LocalPoint followerLocation = follower.getLocalLocation();
 
-		// Get the configured offsets
-		int offsetX = config.offsetX() * 128; // Convert tiles to local units
-		int offsetY = config.offsetY() * 128; // Convert tiles to local units
+		int offsetX = config.offsetX() * TILE_TO_LOCAL_UNIT; // Convert tiles to local units
+		int offsetY = config.offsetY() * TILE_TO_LOCAL_UNIT; // Convert tiles to local units
 
-		// Calculate the new position with the offsets
 		int newX = followerLocation.getX() + offsetX;
 		int newY = followerLocation.getY() + offsetY;
 		LocalPoint newLocation = new LocalPoint(newX, newY);
@@ -345,7 +348,7 @@ public class FollowerPlugin extends Plugin
 		}
 		else
 		{
-			angle = (int) ((Math.atan2(-dy, dx) * 2048) / (2 * Math.PI) + 1500) % 2048;
+			angle = (int) ((Math.atan2(-dy, dx) * ANGLE_CONSTANT) / (2 * Math.PI) + ANGLE_OFFSET) % ANGLE_CONSTANT;
 		}
 
 		Angle followerOrientation = new Angle(angle);
